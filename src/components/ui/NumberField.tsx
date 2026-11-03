@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react';
-import { fmt, parseNumber } from '../../utils/format';
+import { decimalSeparator, fmt, parseNumber } from '../../utils/format';
+import { useI18n } from '../../i18n/useI18n';
 import type { Issue } from '../../physics/types';
 
 interface Props {
@@ -24,20 +25,21 @@ interface Props {
  */
 export function NumberField({ label, value, onChange, unit, min = -Infinity, max = Infinity, step = 1, decimals = 0, hint, issue, integer, disabled, compact }: Props) {
   const id = useId();
+  const { t, issueText, lang } = useI18n();
   const [text, setText] = useState(() => fmtInput(value, decimals));
   const [focused, setFocused] = useState(false);
   const [local, setLocal] = useState<string | null>(null);
 
   useEffect(() => {
     if (!focused) setText(fmtInput(value, decimals));
-  }, [value, decimals, focused]);
+  }, [value, decimals, focused, lang]);
 
   const commit = (txt: string) => {
     setText(txt);
     const n = parseNumber(txt);
-    if (!Number.isFinite(n)) return setLocal('Introdueix un número vàlid.');
-    if (integer && !Number.isInteger(n)) return setLocal('Ha de ser un nombre enter.');
-    if (n < min || n > max) return setLocal(`Valor permès: ${fmt(min, decimals)} – ${fmt(max, decimals)}${unit ? ' ' + unit : ''}.`);
+    if (!Number.isFinite(n)) return setLocal(t('field.invalid'));
+    if (integer && !Number.isInteger(n)) return setLocal(t('field.integer'));
+    if (n < min || n > max) return setLocal(t('field.range', { min: fmt(min, decimals), max: fmt(max, decimals), unit: unit ? ' ' + unit : '' }));
     setLocal(null);
     if (n !== value) onChange(n);
   };
@@ -52,13 +54,13 @@ export function NumberField({ label, value, onChange, unit, min = -Infinity, max
   };
 
   const state = local ? 'error' : issue?.level === 'error' ? 'error' : issue?.level === 'avis' ? 'warn' : '';
-  const message = local ?? issue?.message ?? hint;
+  const message = local ?? (issue ? issueText(issue) : undefined) ?? hint;
 
   return (
     <div className={`field ${state} ${compact ? 'compact' : ''} ${disabled ? 'disabled' : ''}`}>
       <label htmlFor={id}>{label}</label>
       <div className="field-input">
-        <button type="button" className="nudge" tabIndex={-1} onClick={() => nudge(-1)} disabled={disabled} aria-label={`Disminuir ${label}`}>−</button>
+        <button type="button" className="nudge" tabIndex={-1} onClick={() => nudge(-1)} disabled={disabled} aria-label={t('field.decrease', { label })}>−</button>
         <input
           id={id}
           inputMode="decimal"
@@ -77,7 +79,7 @@ export function NumberField({ label, value, onChange, unit, min = -Infinity, max
           aria-invalid={state === 'error'}
         />
         {unit && <span className="unit">{unit}</span>}
-        <button type="button" className="nudge" tabIndex={-1} onClick={() => nudge(1)} disabled={disabled} aria-label={`Augmentar ${label}`}>+</button>
+        <button type="button" className="nudge" tabIndex={-1} onClick={() => nudge(1)} disabled={disabled} aria-label={t('field.increase', { label })}>+</button>
       </div>
       {message && <small className="field-msg">{message}</small>}
     </div>
@@ -86,5 +88,5 @@ export function NumberField({ label, value, onChange, unit, min = -Infinity, max
 
 function fmtInput(v: number, decimals: number) {
   if (!Number.isFinite(v)) return '';
-  return String(Number(v.toFixed(decimals))).replace('.', ',');
+  return String(Number(v.toFixed(decimals))).replace('.', decimalSeparator());
 }

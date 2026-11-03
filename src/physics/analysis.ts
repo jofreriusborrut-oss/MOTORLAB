@@ -31,15 +31,15 @@ export function analyze(cfg: Configuration, simTargetKmh = 200): Analysis {
   const top = topSpeed(engine, cfg.vehicle);
   const extra: Issue[] = [];
   if (top.limitedBy === 'cap') {
-    extra.push({ level: 'error', field: 'gearRatios', message: 'El vehicle no pot arrencar: la força de tracció no supera la resistència al rodament.' });
+    extra.push({ level: 'error', field: 'gearRatios', code: 'an.noStart' });
   }
   if (top.kmh > 420) {
-    extra.push({ level: 'avis', field: 'cx', message: 'Velocitat màxima superior a 420 km/h: el model aerodinàmic simple deixa de ser fiable.' });
+    extra.push({ level: 'avis', field: 'cx', code: 'an.vmaxHigh' });
   }
   const target = Math.min(simTargetKmh, Math.max(10, top.kmh - 0.5));
   const sim = top.limitedBy === 'cap' ? null : simulateAcceleration(engine, cfg.vehicle, { targetKmh: target });
   if (sim?.t0to100 !== null && sim?.t0to100 !== undefined && sim.t0to100 < 1.9) {
-    extra.push({ level: 'avis', field: 'tyreGrip', message: 'Un 0–100 inferior a 1,9 s supera el que permeten pneumàtics de carrer: revisa l\'adherència.' });
+    extra.push({ level: 'avis', field: 'tyreGrip', code: 'an.t100Low' });
   }
   const cycle = cycleEstimate(engine, cfg.vehicle);
   return {

@@ -1,6 +1,7 @@
 import { NumberField } from '../ui/NumberField';
 import { fmt } from '../../utils/format';
 import type { GearInfo } from '../../physics/vehicle';
+import { useI18n } from '../../i18n/useI18n';
 
 interface Props {
   ratios: number[];
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function GearEditor({ ratios, onChange, gears, errorMsg }: Props) {
+  const { t } = useI18n();
   const setCount = (n: number) => {
     if (n === ratios.length) return;
     if (n < ratios.length) return onChange(ratios.slice(0, n));
@@ -24,11 +26,11 @@ export function GearEditor({ ratios, onChange, gears, errorMsg }: Props) {
   };
   return (
     <div className="gear-editor">
-      <NumberField label="Nombre de marxes" value={ratios.length} min={1} max={10} integer onChange={setCount} />
+      <NumberField label={t('veh.nGears')} value={ratios.length} min={1} max={10} integer onChange={setCount} />
       <div className="gear-grid">
         {ratios.map((r, i) => (
           <div key={i} className="gear-cell">
-            <NumberField compact label={`${i + 1}a`} value={r} min={0.1} max={20} step={0.01} decimals={2}
+            <NumberField compact label={t('gear.short', { g: i + 1 })} value={r} min={0.1} max={20} step={0.01} decimals={2}
               onChange={(v) => onChange(ratios.map((x, k) => (k === i ? v : x)))} />
             <span className="gear-meta mono">{gears[i] ? `${fmt(gears[i].maxSpeedKmh, 0)} km/h` : ''}</span>
           </div>

@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useMemo, useReducer, useRef, useS
 import { PRESETS, TYPE_DEFAULTS } from '../data/presets';
 import { analyze, type Analysis } from '../physics/analysis';
 import type { Configuration, EngineConfig, VehicleConfig } from '../physics/types';
+import { setNumberLocale } from '../utils/format';
+import { LOCALES, type Lang } from '../i18n/lang';
 import { clone, initialState, loadState, saveState, type AppState, type FuelSettings } from './storage';
 
 type Action =
@@ -9,14 +11,15 @@ type Action =
   | { type: 'engine'; patch: Partial<EngineConfig> }
   | { type: 'vehicle'; patch: Partial<VehicleConfig> }
   | { type: 'rename'; name: string }
-  | { type: 'duplicate' }
-  | { type: 'newFromPreset'; presetId: string }
+  | { type: 'duplicate'; name: string }
+  | { type: 'newFromPreset'; presetId: string; name: string }
   | { type: 'delete'; id: string }
   | { type: 'resetActive' }
   | { type: 'fuel'; patch: Partial<FuelSettings> }
   | { type: 'compare'; slot: 0 | 1; id: string }
   | { type: 'simTarget'; kmh: number }
-  | { type: 'resetAll' };
+  | { type: 'resetAll' }
+  | { type: 'lang'; lang: Lang };
 
 const newId = () => `cfg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
@@ -51,13 +54,13 @@ function reducer(s: AppState, a: Action): AppState {
     case 'duplicate': {
       const cur = s.configs.find((c) => c.id === s.activeId);
       if (!cur) return s;
-      const copy: Configuration = { ...clone(cur), id: newId(), name: `${cur.name} (còpia)`, builtIn: false };
+      const copy: Configuration = { ...clone(cur), id: newId(), name: a.name.slice(0, 80), builtIn: false };
       return { ...s, configs: [...s.configs, copy], activeId: copy.id };
     }
     case 'newFromPreset': {
       const p = PRESETS.find((x) => x.id === a.presetId);
       if (!p) return s;
-      const c: Configuration = { ...clone(p), id: newId(), name: `${p.name} (nou)`, builtIn: false };
+      const c: Configuration = { ...clone(p), id: newId(), name: a.name.slice(0, 80), builtIn: false };
       return { ...s, configs: [...s.configs, c], activeId: c.id };
     }
     case 'delete': {
@@ -81,7 +84,9 @@ function reducer(s: AppState, a: Action): AppState {
     case 'simTarget':
       return { ...s, simTargetKmh: a.kmh };
     case 'resetAll':
-      return initialState();
+      return { ...initialState(), lang: s.lang };
+    case 'lang':
+      return { ...s, lang: a.lang };
   }
 }
 
@@ -99,6 +104,11 @@ const Ctx = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, loadState);
   const [saved, setSaved] = useState<Store['saved']>('desat');
+  // El format numèric segueix l'idioma (s'aplica abans de renderitzar els fills)
+  setNumberLocale(LOCALES[state.lang]);
+  useEffect(() => {
+    document.documentElement.lang = state.lang;
+  }, [state.lang]);
   const first = useRef(true);
 
   // Desat amb retard (debounce) per no escriure a cada pulsació

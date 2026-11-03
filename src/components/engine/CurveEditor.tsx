@@ -3,8 +3,9 @@ import type { CurvePoint } from '../../physics/types';
 import { curveInterpolator, sortCurve } from '../../physics/interpolation';
 import { powerKw, kwToCv } from '../../physics/engine';
 import { useSize } from '../../utils/useSize';
-import { fmt } from '../../utils/format';
+import { decimalSeparator, fmt } from '../../utils/format';
 import { SERIES } from '../../charts/theme';
+import { useI18n } from '../../i18n/useI18n';
 
 interface Props {
   points: CurvePoint[];
@@ -24,6 +25,7 @@ const H = 300;
  */
 export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
   const [wrapRef, { width }] = useSize<HTMLDivElement>();
+  const { t } = useI18n();
   const [drag, setDrag] = useState<number | null>(null);
   const [sel, setSel] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -109,7 +111,7 @@ export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
     <div className="curve-editor">
       <div ref={wrapRef} className="curve-canvas" tabIndex={0}
         onKeyDown={(e) => { if ((e.key === 'Delete' || e.key === 'Backspace') && sel !== null) remove(sel); }}>
-        <svg ref={svgRef} width={w} height={H} role="img" aria-label="Editor de la corba de parell"
+        <svg ref={svgRef} width={w} height={H} role="img" aria-label={t('curve.aria')}
           onPointerMove={move}
           onPointerUp={() => setDrag(null)}
           onPointerLeave={() => setDrag(null)}
@@ -130,14 +132,14 @@ export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
           ))}
           <rect x={sx(maxRpm)} y={PAD.t} width={Math.max(0, w - PAD.r - sx(maxRpm))} height={ih} className="ce-redzone" />
           <line x1={sx(maxRpm)} x2={sx(maxRpm)} y1={PAD.t} y2={PAD.t + ih} className="ce-redline" />
-          <text x={sx(maxRpm) - 4} y={PAD.t + 12} className="ce-tick" textAnchor="end">tall {fmt(maxRpm)}</text>
+          <text x={sx(maxRpm) - 4} y={PAD.t + 12} className="ce-tick" textAnchor="end">{t('curve.cut', { rpm: fmt(maxRpm) })}</text>
           {idleRpm > 0 && (
             <>
               <line x1={sx(idleRpm)} x2={sx(idleRpm)} y1={PAD.t} y2={PAD.t + ih} className="ce-idle" />
-              <text x={sx(idleRpm) + 4} y={PAD.t + 12} className="ce-tick">ralentí</text>
+              <text x={sx(idleRpm) + 4} y={PAD.t + 12} className="ce-tick">{t('curve.idle')}</text>
             </>
           )}
-          <text x={14} y={PAD.t + ih / 2} className="ce-tick" transform={`rotate(-90 14 ${PAD.t + ih / 2})`} textAnchor="middle">Parell (Nm)</text>
+          <text x={14} y={PAD.t + ih / 2} className="ce-tick" transform={`rotate(-90 14 ${PAD.t + ih / 2})`} textAnchor="middle">{t('curve.yLabel')}</text>
           <path d={path} fill="none" stroke={SERIES.blue} strokeWidth={2} />
           {sorted.map((p, i) => (
             <g key={i}>
@@ -158,12 +160,12 @@ export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
           ))}
         </svg>
       </div>
-      <p className="hint">Arrossega els punts per editar la corba · doble clic per afegir-ne · selecciona i prem <kbd>Supr</kbd> per esborrar.</p>
+      <p className="hint">{t('curve.hint1')} <kbd>{t('curve.delKey')}</kbd> {t('curve.hint2')}</p>
 
       <div className="curve-table-wrap">
         <table className="curve-table">
           <thead>
-            <tr><th>#</th><th>Règim (rpm)</th><th>Parell (Nm)</th><th>Potència</th><th /></tr>
+            <tr><th>#</th><th>{t('curve.colRpm')}</th><th>{t('curve.colTorque')}</th><th>{t('curve.colPower')}</th><th /></tr>
           </thead>
           <tbody>
             {sorted.map((p, i) => (
@@ -171,13 +173,13 @@ export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
                 <td className="mono dim">{i + 1}</td>
                 <td><CellInput value={p.rpm} onCommit={(rpm) => onChange(sortCurve(sorted.map((q, k) => (k === i ? { ...q, rpm } : q))))} min={0} max={30000} /></td>
                 <td><CellInput value={p.torque} onCommit={(torque) => onChange(sorted.map((q, k) => (k === i ? { ...q, torque } : q)))} min={0} max={5000} /></td>
-                <td className="mono dim">{fmt(kwToCv(powerKw(p.torque, p.rpm)), 0)} CV</td>
-                <td><button className="icon-btn" title="Eliminar punt" disabled={sorted.length <= 2} onClick={(e) => { e.stopPropagation(); remove(i); }}>✕</button></td>
+                <td className="mono dim">{fmt(kwToCv(powerKw(p.torque, p.rpm)), 0)} {t('u.cv')}</td>
+                <td><button className="icon-btn" title={t('curve.remove')} aria-label={t('curve.remove')} disabled={sorted.length <= 2} onClick={(e) => { e.stopPropagation(); remove(i); }}>✕</button></td>
               </tr>
             ))}
           </tbody>
         </table>
-        <button className="btn ghost small" onClick={addInLargestGap}>+ Afegir punt</button>
+        <button className="btn ghost small" onClick={addInLargestGap}>{t('curve.add')}</button>
       </div>
     </div>
   );
@@ -185,7 +187,7 @@ export function CurveEditor({ points, maxRpm, idleRpm, onChange }: Props) {
 
 function CellInput({ value, onCommit, min, max }: { value: number; onCommit: (v: number) => void; min: number; max: number }) {
   const [txt, setTxt] = useState<string | null>(null);
-  const shown = txt ?? String(value).replace('.', ',');
+  const shown = txt ?? String(value).replace('.', decimalSeparator());
   const n = Number(shown.replace(',', '.'));
   const bad = !Number.isFinite(n) || n < min || n > max || shown.trim() === '';
   const commit = () => {

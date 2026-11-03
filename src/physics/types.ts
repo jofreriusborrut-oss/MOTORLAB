@@ -45,5 +45,7 @@ export type IssueLevel = 'error' | 'avis';
 export interface Issue {
   level: IssueLevel;
   field: string;
-  message: string;
+  /** Codi del missatge; el text es tradueix a la interfície (clau `issue.<code>`). */
+  code: string;
+  params?: Record<string, number | string>;
 }

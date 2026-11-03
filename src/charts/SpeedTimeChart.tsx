@@ -2,6 +2,7 @@ import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Too
 import { axisProps, CHART, gridProps, SERIES } from './theme';
 import { ChartTooltip } from './ChartTooltip';
 import { fmt } from '../utils/format';
+import { useI18n } from '../i18n/useI18n';
 
 interface Props {
   data: { t: number; kmh: number }[];
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function SpeedTimeChart({ data, maxT, maxKmh, shifts, targetKmh, height = 300 }: Props) {
+  const { t } = useI18n();
   return (
     <div className="chart" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -30,9 +32,9 @@ export function SpeedTimeChart({ data, maxT, maxKmh, shifts, targetKmh, height =
           <Tooltip content={<ChartTooltip xLabel={(x) => `t = ${fmt(x, 2)} s`} units={{ kmh: 'km/h' }} decimals={{ kmh: 1 }} />} cursor={{ stroke: CHART.axis, strokeDasharray: '3 3' }} />
           <ReferenceLine y={targetKmh} stroke="#3a4552" strokeDasharray="4 4" label={{ value: `${targetKmh} km/h`, fill: CHART.text, fontSize: 10, position: 'insideTopLeft' }} />
           {shifts.map((s) => (
-            <ReferenceLine key={s.t} x={s.t} stroke="#2a323d" label={{ value: `${s.to}a`, fill: CHART.text, fontSize: 10, position: 'insideBottomRight' }} />
+            <ReferenceLine key={s.t} x={s.t} stroke="#2a323d" label={{ value: t('gear.short', { g: s.to }), fill: CHART.text, fontSize: 10, position: 'insideBottomRight' }} />
           ))}
-          <Area dataKey="kmh" name="Velocitat" type="linear" stroke={SERIES.orange} strokeWidth={2} fill="url(#spdFill)" isAnimationActive={false} dot={false} />
+          <Area dataKey="kmh" name={t('chart.speed')} type="linear" stroke={SERIES.orange} strokeWidth={2} fill="url(#spdFill)" isAnimationActive={false} dot={false} />
         </AreaChart>
       </ResponsiveContainer>
     </div>

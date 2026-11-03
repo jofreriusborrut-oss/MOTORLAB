@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useI18n } from '../../i18n/useI18n';
 
 interface Props {
   label: string;
@@ -10,11 +11,12 @@ interface Props {
 }
 
 export function Stat({ label, value, unit, sub, accent = 'none', estimate }: Props) {
+  const { t } = useI18n();
   return (
     <div className={`stat accent-${accent}`}>
       <span className="stat-label">
         {label}
-        {estimate && <span className="est" title="Valor estimat pel model, no és una mesura real">EST.</span>}
+        {estimate && <span className="est" title={t('stat.estTitle')}>{t('stat.est')}</span>}
       </span>
       <span className="stat-value">
         {value}

@@ -1,8 +1,10 @@
 import type { Issue } from '../../physics/types';
+import { useI18n } from '../../i18n/useI18n';
 
 export function IssueList({ issues, title }: { issues: Issue[]; title?: string }) {
+  const { t, issueText } = useI18n();
   if (issues.length === 0) {
-    return <div className="issues ok"><span className="dot ok" /> Configuració coherent. Sense avisos.</div>;
+    return <div className="issues ok"><span className="dot ok" /> {t('issues.none')}</div>;
   }
   const errors = issues.filter((i) => i.level === 'error');
   const warns = issues.filter((i) => i.level === 'avis');
@@ -12,8 +14,8 @@ export function IssueList({ issues, title }: { issues: Issue[]; title?: string }
       <ul>
         {[...errors, ...warns].map((i, k) => (
           <li key={k} className={i.level}>
-            <span className="issue-tag">{i.level === 'error' ? 'ERROR' : 'AVÍS'}</span>
-            <span>{i.message}</span>
+            <span className="issue-tag">{i.level === 'error' ? t('issues.error') : t('issues.warn')}</span>
+            <span>{issueText(i)}</span>
           </li>
         ))}
       </ul>

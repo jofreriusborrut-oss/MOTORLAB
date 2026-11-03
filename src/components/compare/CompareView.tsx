@@ -4,10 +4,11 @@ import { Panel } from '../ui/Panel';
 import { ConfigSelect } from '../ui/ConfigSelect';
 import { CompareChart } from '../../charts/CompareChart';
 import { SERIES } from '../../charts/theme';
-import { ENERGY, ENGINE_TYPE_LABEL } from '../../physics/constants';
+import { ENERGY } from '../../physics/constants';
 import { consumptionFor, priceFor } from '../fuel/FuelView';
 import { fmt } from '../../utils/format';
 import { sampleAt } from '../../simulation/acceleration';
+import { useI18n } from '../../i18n/useI18n';
 
 interface Metric {
   label: string;
@@ -23,6 +24,8 @@ interface Metric {
 
 export function CompareView() {
   const { state, dispatch, analyzeById } = useStore();
+  const { t, cfgName } = useI18n();
+  const cv = t('u.cv');
   const A = analyzeById(state.compare[0]);
   const B = analyzeById(state.compare[1]);
 
@@ -67,30 +70,30 @@ export function CompareView() {
   const ub = ENERGY[B.config.engine.type].unit;
 
   const metrics: Metric[] = [
-    { label: 'Potència màxima', a: ea?.peakPower.cv ?? null, b: eb?.peakPower.cv ?? null, unit: 'CV', better: 'high' },
-    { label: 'Parell màxim', a: ea?.peakTorque.torque ?? null, b: eb?.peakTorque.torque ?? null, unit: 'Nm', better: 'high' },
-    { label: 'Cilindrada', a: A.config.engine.displacementCc || null, b: B.config.engine.displacementCc || null, unit: 'cc', better: 'none',
-      textA: A.config.engine.type === 'electric' ? 'n/a (elèctric)' : undefined, textB: B.config.engine.type === 'electric' ? 'n/a (elèctric)' : undefined },
-    { label: 'Pes del vehicle', a: A.config.vehicle.massKg, b: B.config.vehicle.massKg, unit: 'kg', better: 'low' },
-    { label: 'Relació potència/pes', a: A.analysis.powerToWeight || null, b: B.analysis.powerToWeight || null, unit: 'CV/t', better: 'high' },
-    { label: '0 – 100 km/h', a: A.analysis.sim?.t0to100 ?? null, b: B.analysis.sim?.t0to100 ?? null, unit: 's', decimals: 1, better: 'low' },
-    { label: 'Velocitat màxima', a: A.analysis.top?.kmh ?? null, b: B.analysis.top?.kmh ?? null, unit: 'km/h', better: 'high' },
-    { label: 'Consum', a: ca, b: cb, unit: '', decimals: 1, better: ua === ub ? 'low' : 'none', bars: ua === ub,
+    { label: t('cmp.power'), a: ea?.peakPower.cv ?? null, b: eb?.peakPower.cv ?? null, unit: cv, better: 'high' },
+    { label: t('cmp.torque'), a: ea?.peakTorque.torque ?? null, b: eb?.peakTorque.torque ?? null, unit: 'Nm', better: 'high' },
+    { label: t('cmp.disp'), a: A.config.engine.displacementCc || null, b: B.config.engine.displacementCc || null, unit: 'cc', better: 'none',
+      textA: A.config.engine.type === 'electric' ? t('cmp.na') : undefined, textB: B.config.engine.type === 'electric' ? t('cmp.na') : undefined },
+    { label: t('cmp.mass'), a: A.config.vehicle.massKg, b: B.config.vehicle.massKg, unit: 'kg', better: 'low' },
+    { label: t('cmp.pw'), a: A.analysis.powerToWeight || null, b: B.analysis.powerToWeight || null, unit: t('u.cvPerT'), better: 'high' },
+    { label: t('cmp.t100'), a: A.analysis.sim?.t0to100 ?? null, b: B.analysis.sim?.t0to100 ?? null, unit: 's', decimals: 1, better: 'low' },
+    { label: t('cmp.vmax'), a: A.analysis.top?.kmh ?? null, b: B.analysis.top?.kmh ?? null, unit: 'km/h', better: 'high' },
+    { label: t('cmp.cons'), a: ca, b: cb, unit: '', decimals: 1, better: ua === ub ? 'low' : 'none', bars: ua === ub,
       textA: ca !== null ? `${fmt(ca, 1)} ${ua}/100 km` : undefined, textB: cb !== null ? `${fmt(cb, 1)} ${ub}/100 km` : undefined },
-    { label: 'Cost cada 100 km', a: ca !== null ? ca * priceFor(A.config, state.fuel) : null, b: cb !== null ? cb * priceFor(B.config, state.fuel) : null, unit: '€', decimals: 2, better: 'low' },
+    { label: t('cmp.cost'), a: ca !== null ? ca * priceFor(A.config, state.fuel) : null, b: cb !== null ? cb * priceFor(B.config, state.fuel) : null, unit: '€', decimals: 2, better: 'low' },
   ];
 
   return (
     <div className="view">
-      <Panel title="Comparador de motors" code="X-01" subtitle={`Consum: ${state.fuel.source === 'estimat' ? 'estimat pel model (cicle mixt)' : 'valor declarat'} · es pot canviar a la secció Consum`}>
+      <Panel title={t('cmp.title')} code="X-01" subtitle={t('cmp.sub', { src: state.fuel.source === 'estimat' ? t('cmp.srcEst') : t('cmp.srcDecl') })}>
         <div className="compare-pickers">
-          <ConfigSelect label="Motor A" swatch={SERIES.orange} value={state.compare[0]} onChange={(id) => dispatch({ type: 'compare', slot: 0, id })} />
+          <ConfigSelect label={t('fuel.engineA')} swatch={SERIES.orange} value={state.compare[0]} onChange={(id) => dispatch({ type: 'compare', slot: 0, id })} />
           <span className="vs">VS</span>
-          <ConfigSelect label="Motor B" swatch={SERIES.blue} value={state.compare[1]} onChange={(id) => dispatch({ type: 'compare', slot: 1, id })} />
+          <ConfigSelect label={t('fuel.engineB')} swatch={SERIES.blue} value={state.compare[1]} onChange={(id) => dispatch({ type: 'compare', slot: 1, id })} />
         </div>
         <div className="compare-head">
-          <div><span className="swatch" style={{ background: SERIES.orange }} /> <strong>{A.config.name}</strong><small>{ENGINE_TYPE_LABEL[A.config.engine.type]}</small></div>
-          <div className="right"><strong>{B.config.name}</strong><small>{ENGINE_TYPE_LABEL[B.config.engine.type]}</small> <span className="swatch" style={{ background: SERIES.blue }} /></div>
+          <div><span className="swatch" style={{ background: SERIES.orange }} /> <strong>{cfgName(A.config)}</strong><small>{t(`type.${A.config.engine.type}`)}</small></div>
+          <div className="right"><strong>{cfgName(B.config)}</strong><small>{t(`type.${B.config.engine.type}`)}</small> <span className="swatch" style={{ background: SERIES.blue }} /></div>
         </div>
         <div className="metrics">
           {metrics.map((m) => <MetricRow key={m.label} m={m} />)}
@@ -99,17 +102,17 @@ export function CompareView() {
 
       {curves.length > 0 && (
         <div className="grid-2">
-          <Panel title="Parell motor" code="X-02">
-            <CompareChart data={curves} xKey="rpm" xUnit="rpm" unit="Nm" yLabel="Nm" a={{ key: 'ta', name: A.config.name, color: SERIES.orange }} b={{ key: 'tb', name: B.config.name, color: SERIES.blue }} />
+          <Panel title={t('cmp.torqueChart')} code="X-02">
+            <CompareChart data={curves} xKey="rpm" xUnit="rpm" unit="Nm" yLabel="Nm" a={{ key: 'ta', name: cfgName(A.config), color: SERIES.orange }} b={{ key: 'tb', name: cfgName(B.config), color: SERIES.blue }} />
           </Panel>
-          <Panel title="Potència" code="X-03">
-            <CompareChart data={curves} xKey="rpm" xUnit="rpm" unit="CV" yLabel="CV" a={{ key: 'pa', name: A.config.name, color: SERIES.orange }} b={{ key: 'pb', name: B.config.name, color: SERIES.blue }} />
+          <Panel title={t('cmp.powerChart')} code="X-03">
+            <CompareChart data={curves} xKey="rpm" xUnit="rpm" unit={cv} yLabel={cv} a={{ key: 'pa', name: cfgName(A.config), color: SERIES.orange }} b={{ key: 'pb', name: cfgName(B.config), color: SERIES.blue }} />
           </Panel>
         </div>
       )}
       {speedRows.length > 0 && (
-        <Panel title="Acceleració: velocitat en funció del temps" code="X-04">
-          <CompareChart data={speedRows} xKey="t" xUnit="s" unit="km/h" yLabel="km/h" decimals={1} a={{ key: 'a', name: A.config.name, color: SERIES.orange }} b={{ key: 'b', name: B.config.name, color: SERIES.blue }} />
+        <Panel title={t('cmp.accelChart')} code="X-04">
+          <CompareChart data={speedRows} xKey="t" xUnit="s" unit="km/h" yLabel="km/h" decimals={1} a={{ key: 'a', name: cfgName(A.config), color: SERIES.orange }} b={{ key: 'b', name: cfgName(B.config), color: SERIES.blue }} />
         </Panel>
       )}
     </div>

@@ -9,6 +9,7 @@ import { FuelView } from './components/fuel/FuelView';
 import { CompareView } from './components/compare/CompareView';
 import { MethodView } from './components/MethodView';
 import { useStore } from './state/store';
+import { useI18n } from './i18n/useI18n';
 
 const fromHash = (): ViewId => {
   const h = window.location.hash.replace('#', '') as ViewId;
@@ -19,6 +20,11 @@ export default function App() {
   const [view, setView] = useState<ViewId>(fromHash);
   const [menu, setMenu] = useState(false);
   const { active } = useStore();
+  const { t } = useI18n();
+
+  useEffect(() => {
+    document.title = t('app.title');
+  }, [t]);
 
   useEffect(() => {
     const on = () => setView(fromHash());

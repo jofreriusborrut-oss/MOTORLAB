@@ -26,7 +26,7 @@ export const PRESETS: Configuration[] = [
     name: 'Gasolina atmosfèric 2.0',
     builtIn: true,
     engine: {
-      name: '2.0 atmosfèric 16V',
+      name: '2.0 16V NA',
       type: 'gasolina-atm',
       displacementCc: 1998,
       cylinders: 4,
@@ -51,7 +51,7 @@ export const PRESETS: Configuration[] = [
     name: 'Gasolina turbo 1.5',
     builtIn: true,
     engine: {
-      name: '1.5 TSI turbo',
+      name: '1.5 TSI',
       type: 'gasolina-turbo',
       displacementCc: 1498,
       cylinders: 4,
@@ -75,7 +75,7 @@ export const PRESETS: Configuration[] = [
     name: 'Dièsel 2.0 TDI',
     builtIn: true,
     engine: {
-      name: '2.0 dièsel common-rail',
+      name: '2.0 TDI common-rail',
       type: 'diesel',
       displacementCc: 1968,
       cylinders: 4,
@@ -99,7 +99,7 @@ export const PRESETS: Configuration[] = [
     name: 'Elèctric 150 kW',
     builtIn: true,
     engine: {
-      name: 'Síncron d\'imants permanents',
+      name: 'PMSM 150 kW',
       type: 'electric',
       displacementCc: 0,
       cylinders: 0,

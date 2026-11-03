@@ -1,4 +1,5 @@
 import { PRESETS } from '../data/presets';
+import { detectLang, isLang, type Lang } from '../i18n/lang';
 import type { Configuration, CurvePoint, EngineConfig, EngineType, VehicleConfig } from '../physics/types';
 
 export const STORAGE_KEY = 'motorlab.v1';
@@ -18,6 +19,7 @@ export interface AppState {
   compare: [string, string];
   fuel: FuelSettings;
   simTargetKmh: number;
+  lang: Lang;
 }
 
 export const DEFAULT_FUEL: FuelSettings = { gasolina: 1.55, gasoil: 1.48, electricitat: 0.2, kmPerYear: 15000, source: 'estimat' };
@@ -32,6 +34,7 @@ export function initialState(): AppState {
     compare: [PRESETS[1].id, PRESETS[3].id],
     fuel: { ...DEFAULT_FUEL },
     simTargetKmh: 100,
+    lang: detectLang(),
   };
 }
 
@@ -114,6 +117,7 @@ export function sanitizeState(raw: unknown): AppState {
       source: f.source === 'declarat' ? 'declarat' : 'estimat',
     },
     simTargetKmh: [100, 150, 200].includes(r.simTargetKmh as number) ? (r.simTargetKmh as number) : 100,
+    lang: isLang(r.lang) ? r.lang : base.lang,
   };
 }
 

@@ -1,5 +1,5 @@
 import { useStore } from '../../state/store';
-import { ENGINE_TYPE_LABEL } from '../../physics/constants';
+import { useI18n } from '../../i18n/useI18n';
 
 interface Props {
   value: string;
@@ -10,6 +10,7 @@ interface Props {
 
 export function ConfigSelect({ value, onChange, label, swatch }: Props) {
   const { state } = useStore();
+  const { t, cfgName } = useI18n();
   return (
     <label className="config-select">
       <span className="cs-label">
@@ -19,7 +20,7 @@ export function ConfigSelect({ value, onChange, label, swatch }: Props) {
       <select value={value} onChange={(e) => onChange(e.target.value)}>
         {state.configs.map((c) => (
           <option key={c.id} value={c.id}>
-            {c.name} · {ENGINE_TYPE_LABEL[c.engine.type]}
+            {cfgName(c)} · {t(`type.${c.engine.type}`)}
           </option>
         ))}
       </select>
