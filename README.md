@@ -9,6 +9,25 @@ React + TypeScript + Vite + Recharts. Les dades es desen al navegador (LocalStor
 
 ---
 
+## 🃏 Nit de Pòquer (partides privades amb amics)
+
+**Web:** https://jofreriusborrut-oss.github.io/MOTORLAB/poker/
+
+Texas Hold'em No Limit per jugar amb els amics, cadascú des del seu mòbil (fins a 9 jugadors).
+
+1. Un jugador (l'**amfitrió**) obre la web, posa el nom i toca **Crear mesa privada** (tria fitxes, cegues i temps per jugada).
+2. Toca **Convidar** i envia l'enllaç per WhatsApp (o digues el codi de 5 lletres).
+3. Els amics obren l'enllaç, posen el nom i toquen **Entrar a la mesa**.
+4. Quan hi siguin tots, l'amfitrió toca **Començar partida**.
+
+Funcions: cegues, botó i pots laterals automàtics, temporitzador per jugada, pre-accions (Passar/Retirar-se, Igualar el que sigui), pujades ràpides (⅓, ½, ¾, pot, all-in), vista en BB, xat amb emojis, recompres, comptes finals (qui guanya/perd), historial de mans, reconnexió automàtica si algú perd la cobertura o recarrega la pàgina. L'amfitrió pot canviar cegues, afegir/treure fitxes, pausar i expulsar jugadors.
+
+**Com funciona:** no hi ha servidor propi. Els mòbils es connecten directament entre ells (WebRTC amb [PeerJS](https://peerjs.com/)) i el mòbil de l'amfitrió fa de "crupier": barreja amb el generador criptogràfic del navegador i envia a cada jugador només les seves cartes. Per això **l'amfitrió ha de mantenir la web oberta i la pantalla encesa** (l'app ho demana automàticament). Si l'amfitrió recarrega, la partida es recupera on era.
+
+> Opcional: amb `?servidor=host:port` a l'URL es pot fer servir un servidor PeerJS propi en lloc del gratuït.
+
+---
+
 ## Executar-la en local · Ejecutarla en local · Run it locally
 
 1. Instal·la / instala / install **Node.js LTS**: https://nodejs.org
