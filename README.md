@@ -1,4 +1,4 @@
-# MOTORLAB · 🏛️ GOVERNA
+#🏛️ GOVERNA
 
 Simulador de política nacional: **governa un país real** i decideix sobre economia, educació, exèrcit, drets, eleccions, diplomàcia… Cada decisió té conseqüències a curt i a llarg termini.
 
