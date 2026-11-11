@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { resolve } from 'node:path';
 
 export default defineConfig({
   // Ruta relativa: funciona a GitHub Pages (/MOTORLAB/) i en local sense canvis
@@ -10,7 +9,6 @@ export default defineConfig({
   server: { host: true, port: 5173 },
   build: {
     rollupOptions: {
-      input: { main: resolve(__dirname, 'index.html'), politica: resolve(__dirname, 'politica/index.html') },
       output: { manualChunks: { recharts: ['recharts'] } },
     },
     chunkSizeWarningLimit: 800,

@@ -3,7 +3,7 @@ import { geoNaturalEarth1, geoPath } from 'd3-geo';
 import { feature } from 'topojson-client';
 import world from 'world-atlas/countries-110m.json';
 import type { Game } from '../engine/types';
-import { useSize } from '../../utils/useSize';
+import { useSize } from '../utils/useSize';
 import { useStore, useGame } from '../store';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

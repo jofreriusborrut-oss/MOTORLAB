@@ -2,7 +2,7 @@ import { POLICIES, POLICY_CATS } from '../data/policies';
 import { govSeats, totalSeats } from '../engine/model';
 import { atWar } from '../engine/sim';
 import type { Game } from '../engine/types';
-import { useSize } from '../../utils/useSize';
+import { useSize } from '../utils/useSize';
 import { useStore, useGame } from '../store';
 import Flag from './Flag';
 

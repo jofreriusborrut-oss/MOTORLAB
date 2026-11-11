@@ -54,7 +54,6 @@ export default function TopBar() {
               <div className="menu" onMouseLeave={() => setMenu(false)}>
                 <button onClick={() => { save(); toast('Partida desada'); setMenu(false); }}>💾 Desar partida</button>
                 <button onClick={() => { if (confirm('Vols abandonar la partida actual?')) { setGame(null); setSpeed(0); } setMenu(false); }}>🏁 Nova partida</button>
-                <a href="../">🔧 Anar a MOTORLAB</a>
               </div>
             )}
           </div>

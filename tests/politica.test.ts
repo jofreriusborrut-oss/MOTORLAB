@@ -1,8 +1,8 @@
-import { COUNTRIES } from '../src/politica/data/countries';
-import { newGame } from '../src/politica/engine/init';
-import { tick } from '../src/politica/engine/sim';
-import { chooseEvent, dismissModal } from '../src/politica/engine/actions';
-import type { Game } from '../src/politica/engine/types';
+import { COUNTRIES } from '../src/data/countries';
+import { newGame } from '../src/engine/init';
+import { tick } from '../src/engine/sim';
+import { chooseEvent, dismissModal } from '../src/engine/actions';
+import type { Game } from '../src/engine/types';
 
 function run(g: Game, months: number) {
   for (let i = 0; i < months; i++) {
@@ -40,8 +40,8 @@ describe('simulador polític', () => {
   });
 });
 
-import { approveBudget, callReferendum, diplo, oppAction, proposeLaw } from '../src/politica/engine/actions';
-import { regimeLabel } from '../src/politica/engine/model';
+import { approveBudget, callReferendum, diplo, oppAction, proposeLaw } from '../src/engine/actions';
+import { regimeLabel } from '../src/engine/model';
 
 describe('accions del jugador', () => {
   it('aprovar una llei, uns pressupostos i un referèndum de bandera', () => {
